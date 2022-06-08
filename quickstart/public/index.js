@@ -32797,40 +32797,6 @@
             video.hidden = true;
             bgImg.hidden = false;
         }
-        const connectOrDisconnect = document.querySelector('input#connectordisconnect');
-        const audioCodecSelector = document.querySelector('select#preferredaudiocodec');
-        const videoCodecSelector = document.querySelector('select#preferredvideocodec');
-
-        connectOrDisconnect.onclick = connectToOrDisconnectFromRoom;
-
-        /**
-         * Connect to or disconnect the Participant with media from the Room.
-         */
-        async function connectToOrDisconnectFromRoom(event) {
-            event.preventDefault();
-            // Fetch an AccessToken to join the Room.
-            const response = await fetch(`/token?identity=${identity}`);
-
-            const preferredAudioCodecs = audioCodecSelector.value ? [audioCodecSelector.value] : [];
-            const preferredVideoCodecs = videoCodecSelector.value ? [videoCodecSelector.value] : [];
-
-            connectOptions.preferredAudioCodecs = preferredAudioCodecs;
-            connectOptions.preferredVideoCodecs = preferredVideoCodecs;
-
-            // Extract the AccessToken from the Response.
-            const token = await response.text();
-            return await joinRoom(token, connectOptions);
-        }
-
-        // /**
-        //  * Disconnect the Participant with media from the Room.
-        //  */
-        // function disconnectFromRoom() {
-        //     room.disconnect();
-        //     room = null;
-        //     connectOrDisconnect.value = 'Connect to Room';
-        //     return;
-        // }
 
         /**
          * Join a Room.
@@ -32846,6 +32812,9 @@
             const audioBitrateSelector = document.querySelector('select#maxaudiobitrate');
             const videoBitrateSelector = document.querySelector('select#maxvideobitrate');
 
+            const audioCodecSelector = document.querySelector('select#preferredaudiocodec');
+            const videoCodecSelector = document.querySelector('select#preferredvideocodec');
+
             showVideo.classList.remove('disabled');
             hideVideo.classList.remove('disabled');
 
@@ -32856,8 +32825,14 @@
                 Number(videoBitrateSelector.value) :
                 null;
 
+            const preferredAudioCodecs = audioCodecSelector.value ? [audioCodecSelector.value] : [];
+            const preferredVideoCodecs = videoCodecSelector.value ? [videoCodecSelector.value] : [];
+
             connectOptions.maxAudioBitrate = maxAudioBitrate;
             connectOptions.maxVideoBitrate = maxVideoBitrate;
+
+            connectOptions.preferredAudioCodecs = preferredAudioCodecs;
+            connectOptions.preferredVideoCodecs = preferredVideoCodecs;
 
             // Join to the Room with the given AccessToken and ConnectOptions.
             const room = await connect(token, connectOptions);
