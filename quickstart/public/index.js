@@ -32865,6 +32865,51 @@
             // Set the current active Participant.
             setCurrentActiveParticipant(room);
 
+
+            const P1simulateReconnection = document.getElementById('p1-simulate-reconnection');
+
+            /**
+             * Listen to LocalParticipant reconnection events and update the UI accordingly.
+             * @param {Room} room - The Room you have joined
+             * @param {function} updateRoomState - Updates the app UI with the new state
+             * @returns {void}
+             */
+            function handleLocalParticipantReconnectionUpdates(room, updateParticipantState) {
+                const localParticipant = room.localParticipant;
+
+                localParticipant.on('reconnecting', function () {
+                    updateParticipantState(localParticipant.state);
+                });
+
+                localParticipant.on('reconnected', function () {
+                    updateParticipantState(localParticipant.state);
+                });
+            }
+
+            // Simulate reconnection button functionalities, adding in region in order to extend reconnection time
+            P1simulateReconnection.onclick = () => {
+                room._signaling._transport._twilioConnection._close({
+                    code: 4999,
+                    reason: 'simulate-reconnect'
+                });
+            }
+
+            handleLocalParticipantReconnectionUpdates(room, state => {
+                onRoomStateChange('p1', state);
+            });
+
+            // Update UI to indicate remote side room state changes
+            const onRoomStateChange = (participant, newState) => {
+                const oldRoomState = document.querySelector(`#${participant} div.current`)
+                if (oldRoomState) {
+                    oldRoomState.classList.remove('current');
+                }
+
+                const newRoomState = document.querySelector(`#${participant} div.${newState}`)
+                newRoomState.classList.add('current');
+            }
+
+
             //--------------------------------------------------------
             function muteOrUnmuteYourMedia(room, kind, action) {
                 const publications = kind === 'audio' ?
